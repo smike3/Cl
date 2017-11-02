@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     int n_port = 6778;
     TaskConn tk;
     TextView tv;
-
+//
     Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev;
     Handler handler;
     String str_info = "";
