@@ -28,8 +28,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     int n_port = 6778;
     TaskConn tk;
     TextView tv;
+    TextView tv_vol;
+    Aud_Data aud_data=new Aud_Data();
 //
-    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev;
+    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown;
     Handler handler;
     String str_info = "";
     ServerSocket servers = null;
@@ -48,7 +50,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_ps=(Button)findViewById(R.id.bt_ps);
         bt_adv=(Button)findViewById(R.id.bt_adv);
         bt_rev=(Button)findViewById(R.id.bt_rev);
+        bt_volup=(Button)findViewById(R.id.bt_volup);
+        bt_voldown=(Button)findViewById(R.id.bt_voldown);
         tv = (TextView)findViewById(R.id.tv);
+        tv_vol = (TextView)findViewById(R.id.tv_vol);
         tk=new TaskConn();
         tk.execute("current-song");
         bt_pl.setOnClickListener(this);
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_ps.setOnClickListener(this);
         bt_adv.setOnClickListener(this);
         bt_rev.setOnClickListener(this);
+        bt_volup.setOnClickListener(this);
+        bt_voldown.setOnClickListener(this);
     }
 
     @Override
@@ -76,11 +83,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_rev:
                 tk.execute("playlist-reverse");
+                break;
+            case R.id.bt_volup:
+                aud_data.vol=aud_data.vol+5;
+                tk.execute("set-volume "+aud_data.vol);
+                break;
+            case R.id.bt_voldown:
+                aud_data.vol=aud_data.vol-5;
+                tk.execute("set-volume "+aud_data.vol);
+                break;
             default:
                 tv.setText("22");
                 break;
 
         }
+    }
+
+    class Aud_Data{
+    int vol;
     }
 
     class TaskConn extends AsyncTask<String, Void, String>{
@@ -159,7 +179,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onPostExecute(String result){
             super.onPostExecute(result);
             Log.d(TAG,result);
-            tv.setText(result);
+            aud_data.vol=Integer.parseInt(result.substring(1,4));
+            tv.setText(result.substring(5));
+            tv_vol.setText(result.substring(1,4));
         }
     }
 
