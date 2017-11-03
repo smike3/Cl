@@ -86,10 +86,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_volup:
                 aud_data.vol=aud_data.vol+5;
+                aud_data.norm();
                 tk.execute("set-volume "+aud_data.vol);
                 break;
             case R.id.bt_voldown:
                 aud_data.vol=aud_data.vol-5;
+                aud_data.norm();
                 tk.execute("set-volume "+aud_data.vol);
                 break;
             default:
@@ -101,6 +103,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     class Aud_Data{
     int vol;
+        void norm()
+        {
+            if(vol<0) vol=0;
+            if(vol>100) vol=100;
+        }
+        Aud_Data()
+        {
+            vol=-1;
+        }
     }
 
     class TaskConn extends AsyncTask<String, Void, String>{
@@ -179,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected void onPostExecute(String result){
             super.onPostExecute(result);
             Log.d(TAG,result);
+           // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
             aud_data.vol=Integer.parseInt(result.substring(1,4));
             tv.setText(result.substring(5));
             tv_vol.setText(result.substring(1,4));
