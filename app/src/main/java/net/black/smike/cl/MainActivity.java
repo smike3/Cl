@@ -1,5 +1,6 @@
 package net.black.smike.cl;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tv_vol;
     Aud_Data aud_data=new Aud_Data();
 //
-    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown;
+    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown,bt_set;
     Handler handler;
     String str_info = "";
     ServerSocket servers = null;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_rev=(Button)findViewById(R.id.bt_rev);
         bt_volup=(Button)findViewById(R.id.bt_volup);
         bt_voldown=(Button)findViewById(R.id.bt_voldown);
+        bt_set=(Button)findViewById(R.id.bt_set);
         tv = (TextView)findViewById(R.id.tv);
         tv_vol = (TextView)findViewById(R.id.tv_vol);
         tk=new TaskConn();
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_rev.setOnClickListener(this);
         bt_volup.setOnClickListener(this);
         bt_voldown.setOnClickListener(this);
+        bt_set.setOnClickListener(this);
     }
 
     @Override
@@ -93,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 aud_data.vol=aud_data.vol-5;
                 aud_data.norm();
                 tk.execute("set-volume "+aud_data.vol);
+                break;
+            case R.id.bt_set:
+                Intent intent = new Intent(this, Settings.class);
+                startActivity(intent);
                 break;
             default:
                 tv.setText("22");
