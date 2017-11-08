@@ -1,6 +1,7 @@
 package net.black.smike.cl;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
@@ -31,10 +33,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tv;
     TextView tv_vol;
     Aud_Data aud_data=new Aud_Data();
+    SharedPreferences prf;
+
 //
     Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown,bt_set;
     Handler handler;
-    String str_info = "";
+    String str_info = "", ipAddr;
     ServerSocket servers = null;
     Socket fromclient = null;
     private static final String TAG = "LogCL";
@@ -56,8 +60,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_set=(Button)findViewById(R.id.bt_set);
         tv = (TextView)findViewById(R.id.tv);
         tv_vol = (TextView)findViewById(R.id.tv_vol);
-        tk=new TaskConn();
-        tk.execute("current-song");
         bt_pl.setOnClickListener(this);
         bt_st.setOnClickListener(this);
         bt_ps.setOnClickListener(this);
@@ -73,29 +75,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tk=new TaskConn();
         switch (v.getId()) {
             case R.id.bt_adv:
-                tk.execute("playlist-advance");
+                tk.execute("playlist-advance",ipAddr);
                 break;
             case R.id.bt_pl:
-                tk.execute("playback-play");
+                tk.execute("playback-play",ipAddr);
                 break;
             case R.id.bt_st:
-                tk.execute("playback-stop");
+                tk.execute("playback-stop",ipAddr);
                 break;
             case R.id.bt_ps:
-                tk.execute("playback-pause");
+                tk.execute("playback-pause",ipAddr);
                 break;
             case R.id.bt_rev:
-                tk.execute("playlist-reverse");
+                tk.execute("playlist-reverse",ipAddr);
                 break;
             case R.id.bt_volup:
                 aud_data.vol=aud_data.vol+5;
                 aud_data.norm();
-                tk.execute("set-volume "+aud_data.vol);
+                tk.execute("set-volume "+aud_data.vol,ipAddr);
                 break;
             case R.id.bt_voldown:
                 aud_data.vol=aud_data.vol-5;
                 aud_data.norm();
-                tk.execute("set-volume "+aud_data.vol);
+                tk.execute("set-volume "+aud_data.vol,ipAddr);
                 break;
             case R.id.bt_set:
                 Intent intent = new Intent(this, Settings.class);
@@ -120,6 +122,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             vol=-1;
         }
     }
+    String loadIP() {
+        prf = getSharedPreferences("CL_settings",MODE_PRIVATE);
+        //String ip_s=prf.getString("server_name", "");
+        //System.out.println("\n!"+ip_s);
+        //return ip_s;
+        return prf.getString("server_name", "");
+    }
 
     class TaskConn extends AsyncTask<String, Void, String>{
         @Override
@@ -134,14 +143,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int c;
             try{
                 try {
-                    byte[] ipAddr = new byte[]{10, 6, (byte)133, 66};
-                    InetAddress ipAddress = InetAddress.getByAddress(ipAddr);
+                    //byte[] ipAddr = new byte[]{10, 6, (byte)133, 66};
+
+                    System.out.println("\n!!!!"+line[1]);
+                    //InetAddress ipAddress = InetAddress.getByAddress(ipAddr);
+                    //InetAddress ipAddress = InetAddress.getByName("10.6.133.66");
+                    InetAddress ipAddress = InetAddress.getByName(line[1]);
+
                     System.out.println("Welcome to Client side\n" +
                             "Connecting to the server\n\t" +
                             "(IP address " + localhost +
                             ", port " + serverPort + ")");
                     // InetAddress ipAddress = InetAddress.getByName(localhost);
-                    socket = new Socket(ipAddress, serverPort);
+                    //socket = new Socket(ipAddress, serverPort);
+                    socket = new Socket();
+                    //socket.setSoTimeout(1000);
+                    socket.connect(new InetSocketAddress(line[1], serverPort),1000);
+
                     System.out.println("The connection is established.");
 
                     System.out.println(
@@ -181,13 +199,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                   //  tv.append('\n'+line2);
                 } catch (Exception e) {
                     e.printStackTrace();
+
                 }
             } finally {
                 try {
                     if (socket != null)
                         socket.close();
+
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+ //                   return line2;
+
                 }
             }
 
@@ -202,6 +224,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tv.setText(result.substring(5));
             tv_vol.setText(result.substring(1,4));
         }
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ipAddr=loadIP();
+        tk=new TaskConn();
+        tk.execute("current-song",ipAddr);
+        Log.d(TAG, "MainActivity: onStart()");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "MainActivity: onResume()");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "MainActivity: onPause()");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "MainActivity: onStop()");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "MainActivity: onDestroy()");
     }
 
 }

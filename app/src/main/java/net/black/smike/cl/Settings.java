@@ -14,19 +14,18 @@ import android.widget.EditText;
 public class Settings extends AppCompatActivity implements View.OnClickListener {
 
     Button bt_save;
-    EditText et_ip1,et_ip2,et_ip3,et_ip4;
+    EditText et_server;
     SharedPreferences prf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
+        prf=getSharedPreferences("CL_settings",MODE_PRIVATE);
         bt_save=(Button)findViewById(R.id.bt_save);
-        et_ip1=(EditText)findViewById(R.id.et_ip1);
-        et_ip2=(EditText)findViewById(R.id.et_ip2);
-        et_ip3=(EditText)findViewById(R.id.et_ip3);
-        et_ip4=(EditText)findViewById(R.id.et_ip4);
+        et_server=(EditText)findViewById(R.id.et_server);
         bt_save.setOnClickListener(this);
+        et_server.setText(prf.getString("server_name", ""));
     }
 
     @Override
@@ -42,8 +41,10 @@ public class Settings extends AppCompatActivity implements View.OnClickListener 
 
     void saveIP()
     {
-        prf=getPreferences(MODE_PRIVATE);
-
+        SharedPreferences.Editor ed = prf.edit();
+        ed.putString("server_name", et_server.getText().toString());
+        System.out.println("\n333"+et_server.getText().toString()+"333\n");
+        ed.commit();
     }
 
 }
