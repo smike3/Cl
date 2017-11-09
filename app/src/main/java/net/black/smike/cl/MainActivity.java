@@ -75,29 +75,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tk=new TaskConn();
         switch (v.getId()) {
             case R.id.bt_adv:
-                tk.execute("playlist-advance",ipAddr);
+                tk.execute("0playlist-advance",ipAddr);
                 break;
             case R.id.bt_pl:
-                tk.execute("playback-play",ipAddr);
+                tk.execute("0playback-play",ipAddr);
                 break;
             case R.id.bt_st:
-                tk.execute("playback-stop",ipAddr);
+                tk.execute("0playback-stop",ipAddr);
                 break;
             case R.id.bt_ps:
-                tk.execute("playback-pause",ipAddr);
+                tk.execute("0playback-pause",ipAddr);
                 break;
             case R.id.bt_rev:
-                tk.execute("playlist-reverse",ipAddr);
+                tk.execute("0playlist-reverse",ipAddr);
                 break;
             case R.id.bt_volup:
                 aud_data.vol=aud_data.vol+5;
                 aud_data.norm();
-                tk.execute("set-volume "+aud_data.vol,ipAddr);
+                tk.execute("0set-volume "+aud_data.vol,ipAddr);
                 break;
             case R.id.bt_voldown:
                 aud_data.vol=aud_data.vol-5;
                 aud_data.norm();
-                tk.execute("set-volume "+aud_data.vol,ipAddr);
+                tk.execute("0set-volume "+aud_data.vol,ipAddr);
                 break;
             case R.id.bt_set:
                 Intent intent = new Intent(this, Settings.class);
@@ -130,22 +130,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return prf.getString("server_name", "");
     }
 
-    class TaskConn extends AsyncTask<String, Void, String>{
+    class TaskConn extends AsyncTask<String, Void, String> {
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
             super.onPreExecute();
 
         }
+
         @Override
-        protected String doInBackground(String... line){
+        protected String doInBackground(String... line) {
             Socket socket = null;
-            String line2="";
+            String line2 = "";
             int c;
-            try{
+            try {
                 try {
                     //byte[] ipAddr = new byte[]{10, 6, (byte)133, 66};
 
-                    System.out.println("\n!!!!"+line[1]);
+                    System.out.println("\n!!!!" + line[1]);
                     //InetAddress ipAddress = InetAddress.getByAddress(ipAddr);
                     //InetAddress ipAddress = InetAddress.getByName("10.6.133.66");
                     InetAddress ipAddress = InetAddress.getByName(line[1]);
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //socket = new Socket(ipAddress, serverPort);
                     socket = new Socket();
                     //socket.setSoTimeout(1000);
-                    socket.connect(new InetSocketAddress(line[1], serverPort),1000);
+                    socket.connect(new InetSocketAddress(line[1], serverPort), 1000);
 
                     System.out.println("The connection is established.");
 
@@ -172,31 +173,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     // Получаем входной и выходной потоки сокета для обмена
                     // сообщениями с сервером
-                    InputStream sin  = socket.getInputStream();
+                    InputStream sin = socket.getInputStream();
                     OutputStream sout = socket.getOutputStream();
 
-                    DataInputStream in  = new DataInputStream (sin );
+                    DataInputStream in = new DataInputStream(sin);
                     DataOutputStream out = new DataOutputStream(sout);
 
 
-                //    String line=et.getText().toString();
-              //      tv.append(line);
-                 //   String line="sdfffd";
+                    //    String line=et.getText().toString();
+                    //      tv.append(line);
+                    //   String line="sdfffd";
                     //   out.writeUTF(line);     // Отсылаем строку серверу
-                    byte[] bb=line[0].getBytes();
-                                     //   String comm="playback-play";
+                    byte[] bb = line[0].getBytes();
+                    //   String comm="playback-play";
                     //byte[] bb=line[0].getBytes();
-                    out.write(bb,0,bb.length);
+                    out.write(bb, 0, bb.length);
                     out.flush();            // Завершаем поток
                     //line2 = in.readUTF();    // Ждем ответа от сервера
-                    byte[] bb2=new byte[2048];
-                   // Log.d(TAG,bb2.toString());
-                    c=in.read(bb2);
+                    byte[] bb2 = new byte[20480];
+                    // Log.d(TAG,bb2.toString());
+                    c = in.read(bb2);
                     //bb2[c]='\0';
-                    line2= new String(bb2);
-                    line2=line2.substring(0,c);
-                  //  Log.d(TAG,"!"+bb2.toString()+"!"+c);
-                  //  tv.append('\n'+line2);
+                    line2 = new String(bb2);
+                    line2 = line2.substring(0, c);
+                    //  Log.d(TAG,"!"+bb2.toString()+"!"+c);
+                    //  tv.append('\n'+line2);
                 } catch (Exception e) {
                     e.printStackTrace();
 
@@ -208,29 +209,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 } catch (IOException e) {
                     //e.printStackTrace();
- //                   return line2;
+                    //                   return line2;
 
                 }
             }
 
             return line2;
         }
+
         @Override
-        protected void onPostExecute(String result){
+        protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.d(TAG,result);
-           // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
-            aud_data.vol=Integer.parseInt(result.substring(1,4));
-            tv.setText(result.substring(5));
-            tv_vol.setText(result.substring(1,4));
+            Log.d(TAG, result);
+            // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
+            switch (Integer.parseInt(result.substring(0,1))) {
+                case 0:
+                    aud_data.vol = Integer.parseInt(result.substring(2, 5));
+                    tv.setText(result.substring(6));
+                    tv_vol.setText(result.substring(2, 5));
+                    break;
+                case 1:
+                    break;
+            }
+           // tv.setText(result.substring(0,1));
         }
     }
+
     @Override
     protected void onStart() {
         super.onStart();
         ipAddr=loadIP();
         tk=new TaskConn();
-        tk.execute("current-song",ipAddr);
+        tk.execute("0current-song",ipAddr);
+        tk=new TaskConn();
+        tk.execute("1dir",ipAddr);
         Log.d(TAG, "MainActivity: onStart()");
     }
 
