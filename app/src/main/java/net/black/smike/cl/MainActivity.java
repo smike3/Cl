@@ -200,20 +200,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     //  tv.append('\n'+line2);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Log.d(TAG, "Exce 1");
+                    line2="0[000]none";
+                   // return "0[000]none";
 
                 }
             } finally {
                 try {
                     if (socket != null)
                         socket.close();
+                    Log.d(TAG, "Exce 2");
 
                 } catch (IOException e) {
                     //e.printStackTrace();
                     //                   return line2;
-
+                    Log.d(TAG, "Exce 3");
                 }
             }
-
+            Log.d(TAG, "Exce 111");
             return line2;
         }
 
