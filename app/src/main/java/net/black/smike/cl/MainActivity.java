@@ -34,11 +34,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView tv_vol;
     Aud_Data aud_data=new Aud_Data();
     SharedPreferences prf;
+    Pref pp=new Pref();
 
 //
-    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown,bt_set;
+    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown,bt_set,bt_mvp;
     Handler handler;
-    String str_info = "", ipAddr;
+    //String str_info = "", ipAddr,path_mvp;
+    String str_info = "",mvp_files="";
     ServerSocket servers = null;
     Socket fromclient = null;
     private static final String TAG = "LogCL";
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_volup=(Button)findViewById(R.id.bt_volup);
         bt_voldown=(Button)findViewById(R.id.bt_voldown);
         bt_set=(Button)findViewById(R.id.bt_set);
+        bt_mvp=(Button)findViewById(R.id.bt_mvp);
         tv = (TextView)findViewById(R.id.tv);
         tv_vol = (TextView)findViewById(R.id.tv_vol);
         bt_pl.setOnClickListener(this);
@@ -68,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_volup.setOnClickListener(this);
         bt_voldown.setOnClickListener(this);
         bt_set.setOnClickListener(this);
+        bt_mvp.setOnClickListener(this);
     }
 
     @Override
@@ -75,33 +79,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tk=new TaskConn();
         switch (v.getId()) {
             case R.id.bt_adv:
-                tk.execute("0playlist-advance",ipAddr);
+                tk.execute("0playlist-advance",pp.ipAddr);
                 break;
             case R.id.bt_pl:
-                tk.execute("0playback-play",ipAddr);
+                tk.execute("0playback-play",pp.ipAddr);
                 break;
             case R.id.bt_st:
-                tk.execute("0playback-stop",ipAddr);
+                tk.execute("0playback-stop",pp.ipAddr);
                 break;
             case R.id.bt_ps:
-                tk.execute("0playback-pause",ipAddr);
+                tk.execute("0playback-pause",pp.ipAddr);
                 break;
             case R.id.bt_rev:
-                tk.execute("0playlist-reverse",ipAddr);
+                tk.execute("0playlist-reverse",pp.ipAddr);
                 break;
             case R.id.bt_volup:
                 aud_data.vol=aud_data.vol+5;
                 aud_data.norm();
-                tk.execute("0set-volume "+aud_data.vol,ipAddr);
+                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
                 break;
             case R.id.bt_voldown:
                 aud_data.vol=aud_data.vol-5;
                 aud_data.norm();
-                tk.execute("0set-volume "+aud_data.vol,ipAddr);
+                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
                 break;
             case R.id.bt_set:
                 Intent intent = new Intent(this, Settings.class);
                 startActivity(intent);
+                break;
+            case R.id.bt_mvp:
+                Intent intent_mvp = new Intent(this, MVP.class);
+                intent_mvp.putExtra("mvp_files",mvp_files);
+                startActivity(intent_mvp);
                 break;
             default:
                 tv.setText("22");
@@ -122,12 +131,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             vol=-1;
         }
     }
-    String loadIP() {
+
+    class MVP_Date{
+
+
+    }
+    class Pref{
+        String ipAddr,path_mvp;
+        public void set_ipAddr(String s)
+        {
+            ipAddr=s;
+        }
+        public void set_path_mvp(String s)
+        {
+            path_mvp=s;
+        }
+    }
+    Pref loadPref() {
+        Pref ppp=new Pref();
         prf = getSharedPreferences("CL_settings",MODE_PRIVATE);
         //String ip_s=prf.getString("server_name", "");
         //System.out.println("\n!"+ip_s);
         //return ip_s;
-        return prf.getString("server_name", "");
+        ppp.set_ipAddr(prf.getString("server_name", ""));
+        ppp.set_path_mvp(prf.getString("mvp_dir", ""));
+        return ppp;
     }
 
     class TaskConn extends AsyncTask<String, Void, String> {
@@ -224,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.d(TAG, result);
+            Log.d(TAG, "123"+result);
             // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
             switch (Integer.parseInt(result.substring(0,1))) {
                 case 0:
@@ -233,6 +261,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     tv_vol.setText(result.substring(2, 5));
                     break;
                 case 1:
+                  //  String files[]=result.split("!");
+                //    Log.d(TAG, files[0]);
+                 //   System.out.println(files.length);
+                    mvp_files=result.substring(5);
                     break;
             }
            // tv.setText(result.substring(0,1));
@@ -242,11 +274,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        ipAddr=loadIP();
+        pp=loadPref();
         tk=new TaskConn();
-        tk.execute("0current-song",ipAddr);
+        tk.execute("0current-song",pp.ipAddr);
         tk=new TaskConn();
-        tk.execute("1dir",ipAddr);
+        tk.execute("1dir"+pp.path_mvp,pp.ipAddr);
         Log.d(TAG, "MainActivity: onStart()");
     }
 
