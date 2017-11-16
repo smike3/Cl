@@ -110,13 +110,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.bt_mvp:
                 Intent intent_mvp = new Intent(this, MVP.class);
                 intent_mvp.putExtra("mvp_files",mvp_files);
-                startActivity(intent_mvp);
+                startActivityForResult(intent_mvp,1);
                 break;
             default:
                 tv.setText("22");
                 break;
 
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //if (data == null) return;
+        String name=data.getStringExtra("name_mvp");
+        System.out.println("1mvp"+pp.path_mvp+name);
+        tk=new TaskConn();
+        tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
     }
 
     class Aud_Data{
@@ -144,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         public void set_path_mvp(String s)
         {
-            path_mvp=s;
+            path_mvp=s+"/";
         }
     }
     Pref loadPref() {
