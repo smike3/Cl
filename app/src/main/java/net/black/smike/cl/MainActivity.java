@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Pref pp=new Pref();
 
 //
-    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown,bt_set,bt_mvp;
+    Button bt_pl,bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown,bt_set,bt_mvp,bt_mpvstop;
     Handler handler;
     //String str_info = "", ipAddr,path_mvp;
     String str_info = "",mvp_files="";
@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_voldown=(Button)findViewById(R.id.bt_voldown);
         bt_set=(Button)findViewById(R.id.bt_set);
         bt_mvp=(Button)findViewById(R.id.bt_mvp);
+        bt_mpvstop=(Button)findViewById(R.id.bt_mpvstop);
         tv = (TextView)findViewById(R.id.tv);
         tv_vol = (TextView)findViewById(R.id.tv_vol);
         bt_pl.setOnClickListener(this);
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_voldown.setOnClickListener(this);
         bt_set.setOnClickListener(this);
         bt_mvp.setOnClickListener(this);
+        bt_mpvstop.setOnClickListener(this);
     }
 
     @Override
@@ -111,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent_mvp = new Intent(this, MVP.class);
                 intent_mvp.putExtra("mvp_files",mvp_files);
                 startActivityForResult(intent_mvp,1);
+                break;
+            case R.id.bt_mpvstop:
+                tk.execute("1stp",pp.ipAddr);
                 break;
             default:
                 tv.setText("22");
