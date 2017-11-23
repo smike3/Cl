@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -15,7 +14,7 @@ import android.widget.ListView;
  * Created by smike on 15.11.17.
  */
 
-public class MVP extends AppCompatActivity implements View.OnClickListener {
+public class MVP_list extends AppCompatActivity implements View.OnClickListener {
 
     EditText et_server;
     SharedPreferences prf;
@@ -24,7 +23,7 @@ public class MVP extends AppCompatActivity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mvp);
+        setContentView(R.layout.mvp_list);
         Intent intent = getIntent();
         String mvp_files = intent.getStringExtra("mvp_files");
         final String files[]=mvp_files.split("!");
