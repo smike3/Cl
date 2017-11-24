@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Pref pp=new Pref();
 
 //
-    Button bt_st,bt_ps,bt_adv,bt_rev,bt_volup,bt_voldown,bt_mvp,bt_mpvstop;
-    ImageButton bt_pl;
+    Button bt_volup,bt_voldown,bt_mvp,bt_mpvstop;
+    ImageButton bt_st,bt_ps,bt_adv,bt_rev,bt_pl;
     Toolbar tlb;
     Handler handler;
         //String str_info = "", ipAddr,path_mvp;
@@ -67,10 +67,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bt_pl=(ImageButton)findViewById(R.id.bt_pl);
-        bt_st=(Button)findViewById(R.id.bt_st);
-        bt_ps=(Button)findViewById(R.id.bt_ps);
-        bt_adv=(Button)findViewById(R.id.bt_adv);
-        bt_rev=(Button)findViewById(R.id.bt_rev);
+        bt_st=(ImageButton)findViewById(R.id.bt_st);
+        bt_ps=(ImageButton)findViewById(R.id.bt_ps);
+        bt_adv=(ImageButton)findViewById(R.id.bt_adv);
+        bt_rev=(ImageButton)findViewById(R.id.bt_rev);
         bt_volup=(Button)findViewById(R.id.bt_volup);
         bt_voldown=(Button)findViewById(R.id.bt_voldown);
         bt_mvp=(Button)findViewById(R.id.bt_mvp);
