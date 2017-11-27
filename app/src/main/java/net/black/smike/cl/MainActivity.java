@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 
@@ -49,8 +50,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Pref pp=new Pref();
 
 //
-    Button bt_volup,bt_voldown,bt_mvp,bt_mpvstop;
+    Button bt_mvp,bt_mpvstop;
     ImageButton bt_st,bt_ps,bt_adv,bt_rev,bt_pl;
+    SeekBar skb;
     Toolbar tlb;
     Handler handler;
         //String str_info = "", ipAddr,path_mvp;
@@ -71,22 +73,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_ps=(ImageButton)findViewById(R.id.bt_ps);
         bt_adv=(ImageButton)findViewById(R.id.bt_adv);
         bt_rev=(ImageButton)findViewById(R.id.bt_rev);
-        bt_volup=(Button)findViewById(R.id.bt_volup);
-        bt_voldown=(Button)findViewById(R.id.bt_voldown);
         bt_mvp=(Button)findViewById(R.id.bt_mvp);
         bt_mpvstop=(Button)findViewById(R.id.bt_mpvstop);
         tv = (TextView)findViewById(R.id.tv);
         tv_vol = (TextView)findViewById(R.id.tv_vol);
         tlb=(Toolbar)findViewById(R.id.tlb);
+        skb=(SeekBar) findViewById(R.id.skb);
         bt_pl.setOnClickListener(this);
         bt_st.setOnClickListener(this);
         bt_ps.setOnClickListener(this);
         bt_adv.setOnClickListener(this);
         bt_rev.setOnClickListener(this);
-        bt_volup.setOnClickListener(this);
-        bt_voldown.setOnClickListener(this);
         bt_mvp.setOnClickListener(this);
         bt_mpvstop.setOnClickListener(this);
+        skb.setOnSeekBarChangeListener(seekBarChangeListener);
         setSupportActionBar(tlb);
         DrawerLayout dr_lay = (DrawerLayout) findViewById(R.id.dr_lay);
         ActionBarDrawerToggle tog = new ActionBarDrawerToggle(this, dr_lay, tlb,R.string.dr_open,R.string.dr_close);
@@ -116,6 +116,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         );
     }
+    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            aud_data.vol=skb.getProgress();
+            tk=new TaskConn();
+            tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+    };
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -163,16 +182,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_rev:
                 tk.execute("0playlist-reverse",pp.ipAddr);
-                break;
-            case R.id.bt_volup:
-                aud_data.vol=aud_data.vol+5;
-                aud_data.norm();
-                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
-                break;
-            case R.id.bt_voldown:
-                aud_data.vol=aud_data.vol-5;
-                aud_data.norm();
-                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
                 break;
             case R.id.bt_mvp:
                 Intent intent_mvp = new Intent(this, MVP_list.class);
@@ -335,9 +344,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
             switch (Integer.parseInt(result.substring(0,1))) {
                 case 0:
-                    aud_data.vol = Integer.parseInt(result.substring(2, 5));
+                    if(aud_data.vol<0) {
+                        aud_data.vol = Integer.parseInt(result.substring(2, 5));
+                        skb.setProgress(aud_data.vol);
+                    }
+                    else aud_data.vol = Integer.parseInt(result.substring(2, 5));
                     tv.setText(result.substring(6));
                     tv_vol.setText(result.substring(2, 5));
+                    System.out.println("!!!!!!!"+skb.getProgress());
+                    //tv_vol.setText(skb.getProgress());
                     break;
                 case 1:
                   //  String files[]=result.split("!");
@@ -356,6 +371,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pp=loadPref();
         tk=new TaskConn();
         tk.execute("0current-song",pp.ipAddr);
+        System.out.println("!----+"+aud_data.vol);
+
         tk=new TaskConn();
         tk.execute("1dir"+pp.path_mvp,pp.ipAddr);
         Log.d(TAG, "MainActivity: onStart()");
