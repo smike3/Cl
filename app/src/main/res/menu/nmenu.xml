@@ -3,8 +3,10 @@
 
     <item
         android:id="@+id/auda"
+        android:icon="@drawable/ic_library_music_black_24dp"
         android:title="Audacious" />
     <item
         android:id="@+id/mpv"
+        android:icon="@drawable/ic_video_library_black_24dp"
         android:title="MPV" />
 </menu>
