@@ -63,8 +63,8 @@ public class MPV extends Fragment implements View.OnClickListener{
         ppp.set_ipAddr(prf.getString("server_name", ""));
         ppp.set_path_mvp(prf.getString("mvp_dir", ""));
         pp=ppp;
-        tk=new TaskConn();
-        tk.execute("1dir"+pp.path_mvp,pp.ipAddr);
+  //      tk=new TaskConn();
+    //    tk.execute("1dir"+pp.path_mvp,pp.ipAddr);
         return v;
     }
 
@@ -180,9 +180,13 @@ public class MPV extends Fragment implements View.OnClickListener{
                 case 1:
                     //  String files[]=result.split("!");
                     //    Log.d(TAG, files[0]);
+                    System.out.println("-->>"+result);
 
-
-                    if(result.substring(1,4).equals("dir")) mvp_files = result.substring(5);
+                    if(result.substring(1,4).equals("dir")) {mvp_files = result.substring(5);
+                    System.out.println("--->>"+mvp_files);
+                        Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
+                        intent_mvp.putExtra("mvp_files",mvp_files);
+                        startActivityForResult(intent_mvp,1);}
                     break;
             }
             // tv.setText(result.substring(0,1));
@@ -203,9 +207,10 @@ public class MPV extends Fragment implements View.OnClickListener{
                     break;
                 case R.id.bt_mvp2:
                     //System.out.println(pp.);
-                    Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
-                    intent_mvp.putExtra("mvp_files",mvp_files);
-                    startActivityForResult(intent_mvp,1);
+                    tk.execute("1dir"+pp.path_mvp,pp.ipAddr);
+                  //  Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
+                //    intent_mvp.putExtra("mvp_files",mvp_files);
+               //     startActivityForResult(intent_mvp,1);
                     break;
                 case R.id.bt_mpvstop2:
                     System.out.println("########"+pp.ipAddr);
@@ -217,12 +222,5 @@ public class MPV extends Fragment implements View.OnClickListener{
             }
         }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) return;
-        String name=data.getStringExtra("name_mvp");
-        System.out.println("1mvp"+pp.path_mvp+name);
-        tk=new TaskConn();
-        tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
-    }
+
 }
