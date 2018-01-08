@@ -223,7 +223,7 @@ public class Auda extends Fragment implements View.OnClickListener {
                            skb.setProgress(aud_data.vol);
                     //}
                     //else aud_data.vol = Integer.parseInt(result.substring(2, 5));
-                        tv.setText(result.substring(6));
+                        tv.setText(result.substring(6).replaceAll(" - ","\n"));
                           tv_vol.setText(Integer.toString(aud_data.vol));
                          System.out.println("!!!!!!!"+skb.getProgress());
                     //tv_vol.setText(skb.getProgress());
