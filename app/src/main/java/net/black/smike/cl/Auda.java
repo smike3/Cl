@@ -34,7 +34,7 @@ import java.net.Socket;
 public class Auda extends Fragment implements View.OnClickListener {
 
     Button bt_mpv, bt_mpvstop;
-    ImageButton bt_st,bt_ps,bt_adv,bt_rev,bt_pl;
+    ImageButton bt_st,bt_ps,bt_adv,bt_rev,bt_pl,bt_vol_up,bt_vol_down;
     TextView tv;
     TextView tv_vol;
     TaskConn tk;
@@ -59,6 +59,8 @@ public class Auda extends Fragment implements View.OnClickListener {
         bt_ps=(ImageButton)v.findViewById(R.id.bt_ps);
         bt_adv=(ImageButton)v.findViewById(R.id.bt_adv);
         bt_rev=(ImageButton)v.findViewById(R.id.bt_rev);
+        bt_vol_up=(ImageButton)v.findViewById(R.id.bt_vol_up);
+        bt_vol_down=(ImageButton)v.findViewById(R.id.bt_vol_down);
         tv = (TextView)v.findViewById(R.id.tv);
         tv_vol = (TextView)v.findViewById(R.id.tv_vol);
         tlb=(Toolbar)v.findViewById(R.id.tlb);
@@ -68,6 +70,8 @@ public class Auda extends Fragment implements View.OnClickListener {
         bt_ps.setOnClickListener(this);
         bt_adv.setOnClickListener(this);
         bt_rev.setOnClickListener(this);
+        bt_vol_up.setOnClickListener(this);
+        bt_vol_down.setOnClickListener(this);
         skb.setOnSeekBarChangeListener(seekBarChangeListener);
 
         return v;
@@ -91,6 +95,16 @@ public class Auda extends Fragment implements View.OnClickListener {
                 break;
             case R.id.bt_rev:
                 tk.execute("0playlist-reverse",pp.ipAddr);
+                break;
+            case R.id.bt_vol_up:
+                aud_data.vol+=3;
+                aud_data.norm();
+                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
+                break;
+            case R.id.bt_vol_down:
+                aud_data.vol-=3;
+                aud_data.norm();
+                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
                 break;
             default:
                 tv.setText("22");
