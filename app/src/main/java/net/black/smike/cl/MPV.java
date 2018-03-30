@@ -186,7 +186,8 @@ public class MPV extends Fragment implements View.OnClickListener{
                     System.out.println("--->>"+mvp_files);
                         Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
                         intent_mvp.putExtra("mvp_files",mvp_files);
-                        startActivityForResult(intent_mvp,1);}
+                        startActivityForResult(intent_mvp,1);
+                        }
                     break;
             }
             // tv.setText(result.substring(0,1));
@@ -211,6 +212,8 @@ public class MPV extends Fragment implements View.OnClickListener{
                   //  Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
                 //    intent_mvp.putExtra("mvp_files",mvp_files);
                //     startActivityForResult(intent_mvp,1);
+                //    tk=new TaskConn();
+               //     tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
                     break;
                 case R.id.bt_mpvstop2:
                     System.out.println("########"+pp.ipAddr);
@@ -222,5 +225,16 @@ public class MPV extends Fragment implements View.OnClickListener{
             }
         }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) return;
+        String name=data.getStringExtra("name_mvp");
+        System.out.println("VVVVVVV1mvp"+name);
+        tk=new TaskConn();
+        tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
+        //  System.out.println("1mvp"+pp.path_mvp+name);
+        //   tk=new MPV.TaskConn();
+        //    tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
+    }
 
 }
