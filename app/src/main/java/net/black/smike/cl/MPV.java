@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,7 +32,8 @@ import java.net.Socket;
 
 public class MPV extends Fragment implements View.OnClickListener{
 
-    Button bt_mpv, bt_mpvstop,bt_mpv_up,bt_mpv_down,bt_mpv_quit;
+    Button bt_mpv;
+    ImageButton bt_mpvstop,bt_mpv_up,bt_mpv_down,bt_mpv_quit,bt_mpv_adv,bt_mpv_advadv,bt_mpv_rev,bt_mpv_revrev;
     TaskConn tk;
     Pref pp=new Pref();
     String mvp_files="";
@@ -45,14 +47,22 @@ public class MPV extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.mpv, null);
         bt_mpv=(Button)v.findViewById(R.id.bt_mvp2);
-        bt_mpv_up=(Button)v.findViewById(R.id.bt_mpv_up);
-        bt_mpv_down=(Button)v.findViewById(R.id.bt_mpv_down);
-        bt_mpv_quit=(Button)v.findViewById(R.id.bt_mpv_quit);
-        bt_mpvstop=(Button)v.findViewById(R.id.bt_mpvstop2);
+        bt_mpv_up=(ImageButton)v.findViewById(R.id.bt_mpv_up);
+        bt_mpv_adv=(ImageButton)v.findViewById(R.id.bt_mpv_adv);
+        bt_mpv_advadv=(ImageButton)v.findViewById(R.id.bt_mpv_advadv);
+        bt_mpv_rev=(ImageButton)v.findViewById(R.id.bt_mpv_rev);
+        bt_mpv_revrev=(ImageButton)v.findViewById(R.id.bt_mpv_revrev);
+        bt_mpv_down=(ImageButton)v.findViewById(R.id.bt_mpv_down);
+        bt_mpv_quit=(ImageButton)v.findViewById(R.id.bt_mpv_quit);
+        bt_mpvstop=(ImageButton)v.findViewById(R.id.bt_mpvstop2);
         bt_mpv.setOnClickListener(this);
         bt_mpv_quit.setOnClickListener(this);
         bt_mpv_up.setOnClickListener(this);
         bt_mpv_down.setOnClickListener(this);
+        bt_mpv_adv.setOnClickListener(this);
+        bt_mpv_advadv.setOnClickListener(this);
+        bt_mpv_rev.setOnClickListener(this);
+        bt_mpv_revrev.setOnClickListener(this);
         bt_mpvstop.setOnClickListener(this);
         SharedPreferences prf;
         Pref ppp=new Pref();
@@ -218,6 +228,18 @@ public class MPV extends Fragment implements View.OnClickListener{
                 case R.id.bt_mpvstop2:
                     System.out.println("########"+pp.ipAddr);
                     tk.execute("1stp", pp.ipAddr);
+                    break;
+                case R.id.bt_mpv_adv:
+                    tk.execute("1adv", pp.ipAddr);
+                    break;
+                case R.id.bt_mpv_advadv:
+                    tk.execute("1aad", pp.ipAddr);
+                    break;
+                case R.id.bt_mpv_rev:
+                    tk.execute("1rev", pp.ipAddr);
+                    break;
+                case R.id.bt_mpv_revrev:
+                    tk.execute("1rre", pp.ipAddr);
                     break;
                 default:
                     //       tv.setText("22");
