@@ -13,8 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,9 +39,11 @@ public class Auda extends Fragment implements View.OnClickListener {
 
     Button bt_mpv, bt_mpvstop;
     ImageButton bt_st,bt_ps,bt_adv,bt_rev,bt_pl,bt_vol_up,bt_vol_down;
+    ImageView iv_cover;
     TextView tv;
     TextView tv_vol;
     TaskConn tk;
+    JSONObject comm_j;
     Pref pp=new Pref();
     String mvp_files="";
     SeekBar skb;
@@ -63,6 +69,7 @@ public class Auda extends Fragment implements View.OnClickListener {
         bt_vol_down=(ImageButton)v.findViewById(R.id.bt_vol_down);
         tv = (TextView)v.findViewById(R.id.tv);
         tv_vol = (TextView)v.findViewById(R.id.tv_vol);
+        iv_cover=v.findViewById(R.id.iv_cover);
         tlb=(Toolbar)v.findViewById(R.id.tlb);
         skb=(SeekBar) v.findViewById(R.id.skb);
         bt_pl.setOnClickListener(this);
@@ -82,29 +89,29 @@ public class Auda extends Fragment implements View.OnClickListener {
         tk=new TaskConn();
         switch(view.getId()) {
             case R.id.bt_adv:
-                tk.execute("0playlist-advance",pp.ipAddr);
+                tk.execute("playlist-advance",pp.ipAddr);
                 break;
             case R.id.bt_pl:
-                tk.execute("0playback-play",pp.ipAddr);
+                tk.execute("playback-play",pp.ipAddr);
                 break;
             case R.id.bt_st:
-                tk.execute("0playback-stop",pp.ipAddr);
+                tk.execute("playback-stop",pp.ipAddr);
                 break;
             case R.id.bt_ps:
-                tk.execute("0playback-pause",pp.ipAddr);
+                tk.execute("playback-pause",pp.ipAddr);
                 break;
             case R.id.bt_rev:
-                tk.execute("0playlist-reverse",pp.ipAddr);
+                tk.execute("playlist-reverse",pp.ipAddr);
                 break;
             case R.id.bt_vol_up:
                 aud_data.vol+=3;
                 aud_data.norm();
-                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
+                tk.execute("set-volume "+aud_data.vol,pp.ipAddr);
                 break;
             case R.id.bt_vol_down:
                 aud_data.vol-=3;
                 aud_data.norm();
-                tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
+                tk.execute("set-volume "+aud_data.vol,pp.ipAddr);
                 break;
             default:
                 tv.setText("22");
@@ -129,7 +136,7 @@ public class Auda extends Fragment implements View.OnClickListener {
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
             tk=new TaskConn();
-            tk.execute("0set-volume "+aud_data.vol,pp.ipAddr);
+            tk.execute("set-volume "+aud_data.vol,pp.ipAddr);
         }
     };
 
@@ -144,8 +151,18 @@ public class Auda extends Fragment implements View.OnClickListener {
         @Override
         protected String doInBackground(String... line) {
             Socket socket = null;
-            String line2 = "";
+            String line2 = "",comm="";
             int c;
+            try {
+                comm_j = new JSONObject();
+                comm_j.put("command_type", 0);
+                comm_j.put("volume_level", aud_data.vol);
+                comm_j.put("command", line[0]);
+                comm=comm_j.toString();
+            } catch (JSONException e)
+            {
+
+            }
             try {
                 try {
                     //byte[] ipAddr = new byte[]{10, 6, (byte)133, 66};
@@ -188,7 +205,7 @@ public class Auda extends Fragment implements View.OnClickListener {
                     //      tv.append(line);
                     //   String line="sdfffd";
                     //   out.writeUTF(line);     // Отсылаем строку серверу
-                    byte[] bb = line[0].getBytes();
+                    byte[] bb = comm.getBytes();
                     //   String comm="playback-play";
                     //byte[] bb=line[0].getBytes();
                     out.write(bb, 0, bb.length);
@@ -205,7 +222,7 @@ public class Auda extends Fragment implements View.OnClickListener {
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.d(TAG, "Exce 1");
-                    line2="0[000]none";
+                    line2="{\"volume\": 0, \"title\": \"none\", \"path\": \"none\", \"command_type\": 0}";
                     // return "0[000]none";
 
                 }
@@ -229,15 +246,27 @@ public class Auda extends Fragment implements View.OnClickListener {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             Log.d(TAG, "123"+result);
+            int comm_type=0;
+            String title="";
+            System.out.println("\nLINE2: "+result);
+            try{
+                JSONObject res_j=new JSONObject(result);
+
+                comm_type=res_j.getInt("command_type");
+
+Log.d(TAG, "vol "+aud_data.vol);
             // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
-            switch (Integer.parseInt(result.substring(0,1))) {
+           // switch (Integer.parseInt(result.substring(0,1))) {
+           switch (comm_type) {
                 case 0:
                     //if(aud_data.vol<=0) {
-                          aud_data.vol = Integer.parseInt(result.substring(2, 5));
+                    aud_data.vol=res_j.getInt("volume");
+                          //aud_data.vol = Integer.parseInt(result.substring(2, 5));
                            skb.setProgress(aud_data.vol);
                     //}
                     //else aud_data.vol = Integer.parseInt(result.substring(2, 5));
-                        tv.setText(result.substring(6).replaceAll(" - ","\n"));
+                    title=res_j.getString("title");
+                        tv.setText(title.replaceAll(" - ","\n"));
                           tv_vol.setText(Integer.toString(aud_data.vol));
                          System.out.println("!!!!!!!"+skb.getProgress());
                     //tv_vol.setText(skb.getProgress());
@@ -250,11 +279,14 @@ public class Auda extends Fragment implements View.OnClickListener {
                     break;
             }
             // tv.setText(result.substring(0,1));
+
+        } catch (JSONException e) {}
         }
     }
     public void onStart() {
         super.onStart();
         SharedPreferences prf;
+      //  String comm="";
         Pref ppp=new Pref();
         prf = this.getActivity().getSharedPreferences("CL_settings", Context.MODE_PRIVATE);
         //String ip_s=prf.getString("server_name", "");
@@ -264,7 +296,11 @@ public class Auda extends Fragment implements View.OnClickListener {
         ppp.set_path_mvp(prf.getString("mvp_dir", ""));
         pp=ppp;
         tk=new TaskConn();
-        tk.execute("0current-song",pp.ipAddr);
+
+        //tk.execute("0current-song",pp.ipAddr);
+        tk.execute("current-song",pp.ipAddr);
+      //  tk=new TaskConn();
+       // tk.execute("0view-cover",pp.ipAddr);
        // pp=loadPref();
     //    tk=new TaskConn();
       //  tk.execute("0current-song",pp.ipAddr);

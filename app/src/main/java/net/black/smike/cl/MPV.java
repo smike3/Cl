@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -37,9 +40,11 @@ public class MPV extends Fragment implements View.OnClickListener{
     TaskConn tk;
     Pref pp=new Pref();
     String mvp_files="";
+    JSONObject comm_j;
     private static final String TAG = "LogCL";
     ServerSocket servers = null;
     Socket fromclient = null;
+    MPV_Data mpv_data=new MPV_Data();
     private  static final int    serverPort = 3379;
     private  static final String localhost  = "127.0.0.1";
 
@@ -73,6 +78,7 @@ public class MPV extends Fragment implements View.OnClickListener{
         ppp.set_ipAddr(prf.getString("server_name", ""));
         ppp.set_path_mvp(prf.getString("mvp_dir", ""));
         pp=ppp;
+        mpv_data.path=pp.path_mvp;
   //      tk=new TaskConn();
     //    tk.execute("1dir"+pp.path_mvp,pp.ipAddr);
         return v;
@@ -89,8 +95,19 @@ public class MPV extends Fragment implements View.OnClickListener{
         @Override
         protected String doInBackground(String... line) {
             Socket socket = null;
-            String line2 = "";
+            String line2 = "",comm="";
             int c;
+            try {
+                comm_j = new JSONObject();
+                comm_j.put("command_type", 1);
+                comm_j.put("filename", mpv_data.name);
+                comm_j.put("path", mpv_data.path);
+                comm_j.put("command", line[0]);
+                comm=comm_j.toString();
+            } catch (JSONException e)
+            {
+
+            }
             try {
                 try {
                     //byte[] ipAddr = new byte[]{10, 6, (byte)133, 66};
@@ -133,7 +150,7 @@ public class MPV extends Fragment implements View.OnClickListener{
                     //      tv.append(line);
                     //   String line="sdfffd";
                     //   out.writeUTF(line);     // Отсылаем строку серверу
-                    byte[] bb = line[0].getBytes();
+                    byte[] bb = comm.getBytes();
                     //   String comm="playback-play";
                     //byte[] bb=line[0].getBytes();
                     out.write(bb, 0, bb.length);
@@ -173,34 +190,43 @@ public class MPV extends Fragment implements View.OnClickListener{
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.d(TAG, "123"+result);
-            // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
-            switch (Integer.parseInt(result.substring(0,1))) {
-                case 0:
-                    //if(aud_data.vol<=0) {
-              //      aud_data.vol = Integer.parseInt(result.substring(2, 5));
-             //       skb.setProgress(aud_data.vol);
-                    //}
-                    //else aud_data.vol = Integer.parseInt(result.substring(2, 5));
-               //     tv.setText(result.substring(6));
-              //      tv_vol.setText(Integer.toString(aud_data.vol));
-               //     System.out.println("!!!!!!!"+skb.getProgress());
-                    //tv_vol.setText(skb.getProgress());
-                    break;
-                case 1:
-                    //  String files[]=result.split("!");
-                    //    Log.d(TAG, files[0]);
-                    System.out.println("-->>"+result);
+            int comm_type=0;
+            String command;
+            Log.d(TAG, "123" + result);
+            try {
+                JSONObject res_j = new JSONObject(result);
 
-                    if(result.substring(1,4).equals("dir")) {mvp_files = result.substring(5);
-                    System.out.println("--->>"+mvp_files);
-                        Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
-                        intent_mvp.putExtra("mvp_files",mvp_files);
-                        startActivityForResult(intent_mvp,1);
+                comm_type = res_j.getInt("command_type");
+                // if(aud_data.vol==-1) aud_data.vol=Integer.parseInt(result.substring(1,4));
+                switch (comm_type) {
+                    case 0:
+                        //if(aud_data.vol<=0) {
+                        //      aud_data.vol = Integer.parseInt(result.substring(2, 5));
+                        //       skb.setProgress(aud_data.vol);
+                        //}
+                        //else aud_data.vol = Integer.parseInt(result.substring(2, 5));
+                        //     tv.setText(result.substring(6));
+                        //      tv_vol.setText(Integer.toString(aud_data.vol));
+                        //     System.out.println("!!!!!!!"+skb.getProgress());
+                        //tv_vol.setText(skb.getProgress());
+                        break;
+                    case 1:
+                        //  String files[]=result.split("!");
+                        //    Log.d(TAG, files[0]);
+                        System.out.println("-->>" + result);
+                        command = res_j.getString("command");
+                        if (command.equals("dir")) {
+                           // mvp_files = result.substring(5);
+                            System.out.println("--->>" + mvp_files);
+                            Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
+                            //intent_mvp.putExtra("mvp_files", mvp_files);
+                            intent_mvp.putExtra("mvp_files", result);
+                            startActivityForResult(intent_mvp, 1);
                         }
-                    break;
-            }
-            // tv.setText(result.substring(0,1));
+                        break;
+                }
+                // tv.setText(result.substring(0,1));
+            }catch(JSONException e) {}
         }
     }
 
@@ -208,38 +234,38 @@ public class MPV extends Fragment implements View.OnClickListener{
             tk=new TaskConn();
             switch(view.getId()) {
                 case R.id.bt_mpv_quit:
-                    tk.execute("1qui", pp.ipAddr);
+                    tk.execute("qui", pp.ipAddr);
                     break;
                 case R.id.bt_mpv_up:
-                    tk.execute("1vup", pp.ipAddr);
+                    tk.execute("vup", pp.ipAddr);
                     break;
                 case R.id.bt_mpv_down:
-                    tk.execute("1vdn", pp.ipAddr);
+                    tk.execute("vdn", pp.ipAddr);
                     break;
                 case R.id.bt_mvp2:
                     //System.out.println(pp.);
-                    tk.execute("1dir"+pp.path_mvp,pp.ipAddr);
-                  //  Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
-                //    intent_mvp.putExtra("mvp_files",mvp_files);
+                    //tk.execute("dir"+pp.path_mvp,pp.ipAddr);
+                    tk.execute("dir",pp.ipAddr);
+              // //     Intent intent_mvp = new Intent(getActivity().getApplication(), MVP_list.class);
+               //     intent_mvp.putExtra("mvp_files",mvp_files);
                //     startActivityForResult(intent_mvp,1);
-                //    tk=new TaskConn();
-               //     tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
+//               tk.execute("mvp",pp.ipAddr);
                     break;
                 case R.id.bt_mpvstop2:
                     System.out.println("########"+pp.ipAddr);
-                    tk.execute("1stp", pp.ipAddr);
+                    tk.execute("stp", pp.ipAddr);
                     break;
                 case R.id.bt_mpv_adv:
-                    tk.execute("1adv", pp.ipAddr);
+                    tk.execute("adv", pp.ipAddr);
                     break;
                 case R.id.bt_mpv_advadv:
-                    tk.execute("1aad", pp.ipAddr);
+                    tk.execute("aad", pp.ipAddr);
                     break;
                 case R.id.bt_mpv_rev:
-                    tk.execute("1rev", pp.ipAddr);
+                    tk.execute("rev", pp.ipAddr);
                     break;
                 case R.id.bt_mpv_revrev:
-                    tk.execute("1rre", pp.ipAddr);
+                    tk.execute("rre", pp.ipAddr);
                     break;
                 default:
                     //       tv.setText("22");
@@ -250,10 +276,12 @@ public class MPV extends Fragment implements View.OnClickListener{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null) return;
-        String name=data.getStringExtra("name_mvp");
-        System.out.println("VVVVVVV1mvp"+name);
+       // String name=data.getStringExtra("name_mvp");
+      //  System.out.println("VVVVVVV1mvp"+name);
+        mpv_data.name=data.getStringExtra("name_mvp");
         tk=new TaskConn();
-        tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
+      //  tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);
+        tk.execute("mvp",pp.ipAddr);
         //  System.out.println("1mvp"+pp.path_mvp+name);
         //   tk=new MPV.TaskConn();
         //    tk.execute("1mvp"+pp.path_mvp+name,pp.ipAddr);

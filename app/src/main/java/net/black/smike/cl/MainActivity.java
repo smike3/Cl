@@ -28,6 +28,16 @@ class Aud_Data{
     }
 }
 
+class MPV_Data{
+    String path,name;
+    MPV_Data()
+    {
+
+        path="";
+        name="";
+    }
+}
+
 class Pref{
     String ipAddr,path_mvp;
     public void set_ipAddr(String s)

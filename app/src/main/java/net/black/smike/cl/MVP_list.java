@@ -17,6 +17,10 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by smike on 15.11.17.
  */
@@ -56,8 +60,21 @@ public class MVP_list extends AppCompatActivity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mvp_list);
         Intent intent = getIntent();
+        JSONObject comm_j;
+        JSONArray files_name;
+        final String files[];
         String mvp_files = intent.getStringExtra("mvp_files");
-        final String files[]=mvp_files.split("!");
+       // final String files[]=mvp_files.split("!");
+        try {
+            comm_j = new JSONObject(mvp_files);
+            files_name=comm_j.getJSONArray("file_list");
+            files=new String[files_name.length()];
+            for(int c=0;c < files_name.length();c++)
+                {
+                    files[c]=files_name.getString(c);
+                    System.out.println("   > "+files[c]);
+                }
+
         lv=(ListView)findViewById(R.id.lv);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, files);
@@ -73,6 +90,10 @@ public class MVP_list extends AppCompatActivity implements View.OnClickListener 
                 finish();
             }
         });
+        } catch (JSONException e)
+        {
+            System.out.println(" JSON!!! ");
+        }
     }
 
     @Override

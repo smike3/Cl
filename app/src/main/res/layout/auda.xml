@@ -192,6 +192,22 @@
         app:layout_constraintTop_toBottomOf="@+id/bt_vol_up"
         app:layout_constraintVertical_bias="0.19" />
 
+    <ImageView
+        android:id="@+id/iv_cover"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.294"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.842"
+        app:srcCompat="@color/cardview_light_background" />
+
 
 </android.support.constraint.ConstraintLayout>
 
